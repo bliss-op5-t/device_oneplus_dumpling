@@ -1,0 +1,28 @@
+name: Rebase
+
+on:
+  schedule:
+    - cron: '10 20 * * *'
+
+jobs:
+  build:
+    name: Automatic rebase
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install git
+    - name: Rebase
+      run: |
+        git config --global user.name "${GITHUB_USER}"
+        git config --global user.email "${GITHUB_EMAIL}"
+        git clone https://"${GITHUB_USER}":"${GITHUB_TOKEN}"@github.com/bliss-op5-t/device_oneplus_dumpling.git -b 12.1-wip
+        cd device_oneplus_dumpling
+        git fetch https://github.com/yaap-op5t/yaap_device_oneplus_dumpling twelve
+        git rebase FETCH_HEAD
+        git push -f
+      env:
+        GITHUB_EMAIL: ${{ secrets.EMAIL }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_USER: ${{ secrets.USERNAME }}
